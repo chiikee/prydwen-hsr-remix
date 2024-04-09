@@ -20,13 +20,13 @@ export default function Home() {
 				}}
 			>
 				<Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-					Material UI - Next.js App Router example in TypeScript
+					Remix of Prydwen HSR data
 				</Typography>
-				<Link href="/about" color="secondary" component={NextLink}>
-					Go to the about page
+				<Link href="/relics" color="secondary" component={NextLink}>
+					Unused Relics - Safe to Trash
 				</Link>
-				<ProTip />
-				<Copyright />
+				{/* <ProTip /> */}
+				{/* <Copyright /> */}
 			</Box>
 		</Container>
 	);

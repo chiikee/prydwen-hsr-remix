@@ -1,7 +1,9 @@
 "use client"
 import * as React from 'react';
 import Container from '@mui/material/Container';
+import Snackbar from '@mui/material/Snackbar';
 import { DataGrid, GridRowsProp, GridColDef, GridRowProps } from '@mui/x-data-grid';
+import { Typography } from '@mui/material';
 
 interface SetCounts {
     [name: string]: {
@@ -39,7 +41,8 @@ async function fetchCharacter(slug: string) {
     return res.json();
 }
 
-async function compileRelics() {
+async function compileRelics(flashSnackBar: (message: string) => {}) {
+    flashSnackBar("Fetching Tier List...");
     const tierList = await fetchTierList();
     const slugs: Array<string> = []
     for (const char of tierList) {
@@ -48,9 +51,11 @@ async function compileRelics() {
 
     const characters: Array<any> = [];
     for (const slug of slugs) {
+        flashSnackBar(`Fetching ${slug} Character Data...`);
         characters.push(await fetchCharacter(slug))
     }
 
+    flashSnackBar(`Compiling Relics...`);
     const buildData: Array<any> = [];
     const charCones: Array<any> = [];
     for (const character of characters) {
@@ -204,19 +209,27 @@ function notInArray(check: string[], notIn: string[]) {
 export default function Page() {
     const [reloaded, setReloaded] = React.useState(false);
     const [relicCounts, setRelicCounts] = React.useState({} as RelicCounts);
+    const [snackOpen, setSnackOpen] = React.useState(false);
+    const [snackMessage, setSnackMessage] = React.useState("");
+
+    const flashSnackBar = (message: string) => {
+        setSnackMessage(message)
+        setSnackOpen(true)
+    };
 
     React.useEffect(() => {
-        compileRelics()
+        setSnackMessage("Compiling Relics...");
+        setSnackOpen(true);
+        compileRelics(flashSnackBar)
             .then((newRelicCounts) => {
-                setRelicCounts(newRelicCounts)
+                setRelicCounts(newRelicCounts);
+                setSnackOpen(false);
             })
             .catch(console.error);
     }, [reloaded])
 
     const rows = [];
     const planarRows = [];
-
-    
 
     if (relicCounts.body !== undefined) {
         const setNames = new Set(Object.keys(relicCounts.body))
@@ -269,15 +282,31 @@ export default function Page() {
         { field: 'rope', headerName: 'Rope', flex: 1 },
     ];
 
+    const handleSnackClose = () => {
+        setSnackOpen(false);
+    };
+
     return (
         <React.Fragment>
             <Container maxWidth="lg">
+                <Typography variant="h4" gutterBottom>
+                    Unassigned Relics - "Safe" to Salvage
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                    Main stat of relics that have not been assigned to any characters. I.e. generally safe to salvage.
+                </Typography>
                 <DataGrid rows={rows} columns={columns} />
             </Container>
             <Container maxWidth="lg">
                 <DataGrid rows={planarRows} columns={planarColumns} />
             </Container>
             <pre>{JSON.stringify(relicCounts, null, "\t")}</pre>
+            <Snackbar
+                open={snackOpen}
+                onClose={handleSnackClose}
+                message={snackMessage}
+                autoHideDuration={5000}
+            />
         </React.Fragment>
     );
 }
