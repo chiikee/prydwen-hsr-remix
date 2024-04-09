@@ -3,6 +3,26 @@ import * as React from 'react';
 import Container from '@mui/material/Container';
 import { DataGrid, GridRowsProp, GridColDef, GridRowProps } from '@mui/x-data-grid';
 
+interface SetCounts {
+    [name: string]: {
+        [mainStat: string]: number
+    }
+}
+
+interface RelicCounts {
+    [index: string]: any,
+    body: SetCounts,
+    feet: SetCounts,
+    rope: SetCounts,
+    sphere: SetCounts,
+    characters: {
+        relics: SetCounts,
+        planars: SetCounts
+    },
+    cones: SetCounts,
+    conesNew: SetCounts,
+}
+
 async function fetchTierList() {
     const res = await fetch("/api/prydwen/tierlist")
     if (!res.ok) {
@@ -48,24 +68,6 @@ async function compileRelics() {
         }
     }
 
-    interface SetCounts {
-        [name: string]: {
-            [mainStat: string]: number
-        }
-    }
-    interface RelicCounts {
-        [index: string]: any,
-        body: SetCounts,
-        feet: SetCounts,
-        rope: SetCounts,
-        sphere: SetCounts,
-        characters: {
-            relics: SetCounts,
-            planars: SetCounts
-        },
-        cones: SetCounts,
-        conesNew: SetCounts,
-    }
     const relicCounts: RelicCounts = {
         body: {},
         feet: {},
@@ -201,7 +203,7 @@ function notInArray(check: string[], notIn: string[]) {
 
 export default function Page() {
     const [reloaded, setReloaded] = React.useState(false);
-    const [relicCounts, setRelicCounts] = React.useState({});
+    const [relicCounts, setRelicCounts] = React.useState({} as RelicCounts);
 
     React.useEffect(() => {
         compileRelics()
@@ -211,8 +213,10 @@ export default function Page() {
             .catch(console.error);
     }, [reloaded])
 
-    const rows: GridRowsProp = [];
-    const planarRows: GridRowsProp = [];
+    const rows = [];
+    const planarRows = [];
+
+    
 
     if (relicCounts.body !== undefined) {
         const setNames = new Set(Object.keys(relicCounts.body))
@@ -227,6 +231,7 @@ export default function Page() {
             const feetStats = Object.keys(relicCounts.feet[setName]);
             const notFeetStats = notInArray(feetStats, feetStatsAll);
             rows.push({ id: id, set: setName, body: notBodyStats.sort(), feet: notFeetStats.sort() })
+            // rows.concat({ id: id, set: setName, body: notBodyStats.sort(), feet: notFeetStats.sort() })
             id++;
         }
 
