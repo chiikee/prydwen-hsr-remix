@@ -290,7 +290,7 @@ export default function Page() {
         <React.Fragment>
             <Container maxWidth="lg">
                 <Typography variant="h4" gutterBottom>
-                    Unassigned Relics - "Safe" to Salvage
+                    Unassigned Relics - &ldquo;Safe&rdquo; to Salvage
                 </Typography>
                 <Typography variant="subtitle1" gutterBottom>
                     Main stat of relics that have not been assigned to any characters. I.e. generally safe to salvage.
