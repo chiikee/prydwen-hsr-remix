@@ -41,7 +41,7 @@ async function fetchCharacter(slug: string) {
     return res.json();
 }
 
-async function compileRelics(flashSnackBar: (message: string) => {}) {
+async function compileRelics(flashSnackBar: (message: string) => void) {
     flashSnackBar("Fetching Tier List...");
     const tierList = await fetchTierList();
     const slugs: Array<string> = []
